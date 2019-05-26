@@ -119,8 +119,8 @@ def AdaBoost():
     clasificadorFinal=""
     while i<100:
         (clasificador,epsilon)=clasificadorMinimoepsilon(i)
-        #if epsilon<0.5:
-        #    break
+        if epsilon>0.5:
+            break
         dentroLn=(1-epsilon)/epsilon
         alfaActual = 1/2*math.log(dentroLn)
         RecalcularPesos(alfaActual,i+1,clasificador)
