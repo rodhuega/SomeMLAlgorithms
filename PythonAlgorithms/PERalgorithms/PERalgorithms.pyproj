@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>70a20584-8f41-415f-811a-c16a34bd59f0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>AdaBoost.py</StartupFile>
+    <StartupFile>KernelPerceptron.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AdaBoost.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="KernelPerceptron.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
