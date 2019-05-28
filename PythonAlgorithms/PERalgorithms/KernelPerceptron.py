@@ -70,16 +70,16 @@ def kernelPerceptron():
             continuar=False
 
 def main():
-    #introducirDatos()
-    global muestras,kernelMatrix,alfas
-    muestras={'x1': 1, 'x2': 1, 'x3': 1, 'x4': -1, 'x5': -1, 'x6': -1}
-    kernelMatrix=np.array([[ 1,  1,  1,  1,  1,  1],
- [ 1,  4,  1,  0,  4,  9],
- [ 1,  1,  4,  0,  4,  4],
- [ 1,  0,  0,  9,  1,  4],
- [ 1,  4,  4,  1,  9, 16],
- [ 1,  9,  4,  4, 16, 36]])
-    alfas=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    introducirDatos()
+ #   global muestras,kernelMatrix,alfas
+ #   muestras={'x1': 1, 'x2': 1, 'x3': 1, 'x4': -1, 'x5': -1, 'x6': -1}
+ #   kernelMatrix=np.array([[ 1,  1,  1,  1,  1,  1],
+ #[ 1,  4,  1,  0,  4,  9],
+ #[ 1,  1,  4,  0,  4,  4],
+ #[ 1,  0,  0,  9,  1,  4],
+ #[ 1,  4,  4,  1,  9, 16],
+ #[ 1,  9,  4,  4, 16, 36]])
+ #   alfas=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     kernelPerceptron()
 
 if __name__ == "__main__":
