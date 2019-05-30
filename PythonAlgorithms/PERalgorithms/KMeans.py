@@ -38,6 +38,7 @@ def plotear():
         if clase == -1:
             strClase='bo'
         plt.plot(valorX,valorY,strClase)
+        plt.annotate(keyMuestra,(valorX,valorY))
     plt.show()
 
 def CalculoL1(muestra1, muestra2):
