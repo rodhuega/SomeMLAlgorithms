@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>70a20584-8f41-415f-811a-c16a34bd59f0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>KernelPerceptron.py</StartupFile>
+    <StartupFile>KMeans.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,6 +25,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="KernelPerceptron.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="KMeans.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
