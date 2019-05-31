@@ -158,14 +158,13 @@ def CalculoPuntoMedio(muestra1, muestra2):
 def Menu():
     print("1 Condensado Hart")
     print("2 Condensado Wilson")
-    print("3 Error")
-    print("4 Clasificar")
+    print("3 Clasificar")
     print("5 salir")
     seleccion=int(input("Seleccion: "))
     return seleccion
 
 
-def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias):
+def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias,tipoDeDesempate=None):
     muestraAClasificar = muestraClas
     resClas={}
     for keyMuestra in muestras:
@@ -183,8 +182,12 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias):
     resClas1=0
     resClasMenos1=0
     i=0
+    #para desemapteRaro
+    minDVecino=100000
     while i<len(resClasOrdenado):
         KnnResKey=resClasOrdenado[i][0]
+        if i==0:
+            minDVecino=resClasOrdenado[i][1]
         nTotal = resClas1+resClasMenos1
         if nTotal>=k:
             break;
@@ -194,13 +197,27 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias):
         else:
             resClasMenos1+=1
     resClaseFinal =1
-    if resClasMenos1>resClas1:
+    continuar=True
+    if tipoDeDesempate!=None and tipoDeDesempate=='m':
+        i=0
+        claseReal=muestraClas["clase"]
+        while i< len(resClasOrdenado) and continuar:
+            KnnResKey=resClasOrdenado[i][0]
+            distanciaActual=resClasOrdenado[i][1]
+            claseKey=muestras[KnnResKey]["clase"]
+            if distanciaActual>minDVecino:
+                continuar=False
+            elif claseKey!=claseReal:
+                resClaseFinal =claseKey
+                continuar=False
+            i+=1
+    if resClasMenos1>resClas1 and continuar:
         resClaseFinal= -1
-    elif resClasMenos1==resClas1:
+    elif resClasMenos1==resClas1 and continuar:
         resClaseFinal= 0
     return resClaseFinal,resClasOrdenado
 
-def CondensadoHart(orden,k,tipoDistancia):
+def CondensadoHart(orden,k,tipoDistancia,tipoClasificado):
     global muestrasActivas1,muestrasActivas2
     muestrasCombinadas = {**muestrasActivas1, **muestrasActivas2}
     error=continuar=True
@@ -208,6 +225,7 @@ def CondensadoHart(orden,k,tipoDistancia):
     if orden==2:
         muestrasOrdenadas.reverse()
     muestrasSalida= list(muestrasOrdenadas)
+    print("Orden de recorrido:")
     print(muestrasOrdenadas)
     pasadasTotales=0
     #Primera fase
@@ -220,7 +238,7 @@ def CondensadoHart(orden,k,tipoDistancia):
         muestraAClas= muestrasCombinadas[keyMuestraClas]
         claseReal=muestraAClas["clase"]
         nuevoDic = rehacerDicSalida(Store)
-        resKnn=knn(keyMuestraClas,muestraAClas,nuevoDic,k,tipoDistancia)
+        resKnn=knn(keyMuestraClas,muestraAClas,nuevoDic,k,tipoDistancia,tipoClasificado)
         if resKnn[0]!=claseReal:
             Store.append(keyMuestraClas)
         else:
@@ -235,12 +253,13 @@ def CondensadoHart(orden,k,tipoDistancia):
             muestraAClas= muestrasCombinadas[keyMuestraClas]
             claseReal=muestraAClas["clase"]
             nuevoDic = rehacerDicSalida(Store)
-            resKnn=knn(keyMuestraClas,muestraAClas,nuevoDic,k,tipoDistancia)
+            resKnn=knn(keyMuestraClas,muestraAClas,nuevoDic,k,tipoDistancia,tipoClasificado)
             if resKnn[0]!=claseReal:
                 Store.append(keyMuestraClas)
                 Garbage.remove(keyMuestraClas)
                 error=True
-            i+=1
+            else:
+                i+=1
         conString= input("Y para continuar")
         if conString.lower()!='y':
             continuar=False
@@ -248,9 +267,10 @@ def CondensadoHart(orden,k,tipoDistancia):
     print(Store)
     print("Garbage")
     print(Garbage)
+    reAsignarMuestrasActivas(Store)
     plotear()
 
-def Wilson(orden,k,tipoDistancia):
+def Wilson(orden,k,tipoDistancia,tipoDeDesempate):
     global muestrasActivas1,muestrasActivas2
     muestrasCombinadas = {**muestrasActivas1, **muestrasActivas2}
     error=continuar=True
@@ -258,6 +278,7 @@ def Wilson(orden,k,tipoDistancia):
     if orden==2:
         muestrasOrdenadas.reverse()
     muestrasSalida= list(muestrasOrdenadas)
+    print("Orden de recorrido:")
     print(muestrasOrdenadas)
     pasadasTotales=0
     while continuar and error:
@@ -268,7 +289,7 @@ def Wilson(orden,k,tipoDistancia):
             muestraAClas= muestrasCombinadas[keyMuestraClas]
             claseReal=muestraAClas["clase"]
             nuevoDic = rehacerDicSalida(muestrasSalida)
-            resKnn=knn(keyMuestraClas,muestraAClas,nuevoDic,k,tipoDistancia)
+            resKnn=knn(keyMuestraClas,muestraAClas,nuevoDic,k,tipoDistancia,tipoDeDesempate)
             if resKnn[0]!=claseReal:
                 error=True
                 muestrasSalida.remove(keyMuestraClas)
@@ -277,6 +298,7 @@ def Wilson(orden,k,tipoDistancia):
         if conString.lower()!='y':
             continuar=False
     print(muestrasSalida)
+    reAsignarMuestrasActivas(muestrasSalida)
     plotear()
 
 def rehacerDicSalida(lista):
@@ -292,6 +314,24 @@ def rehacerDicSalida(lista):
         i+=1
     return dicSalida
 
+def reAsignarMuestrasActivas(seleccion):
+    global muestrasActivas1,muestrasActivas2
+    muestrasCombinadas = {**muestrasActivas1, **muestrasActivas2}
+    muestrasActivas1={}
+    muestrasActivas2={}
+    i=0;
+    while i<len(seleccion):
+        keyActual=seleccion[i]
+        muestraActual=muestrasCombinadas[keyActual]
+        clase = muestraActual["clase"]
+        if clase==-1:
+            muestrasActivas1[keyActual]=muestraActual
+        else:
+            muestrasActivas2[keyActual]=muestraActual
+        i+=1
+
+
+
 def NuevoOrden(item):
     num = item[1:]
     return int(num)
@@ -306,6 +346,10 @@ def main():
                 , 'x6': {'z1': 2.0, 'z2': 2.0, 'clase': 1}
                 , 'x9': {'z1': 3.0, 'z2': 0.0, 'clase': 1}, 'x11': {'z1': 3.0, 'z2': 1.0, 'clase': 1}
                 , 'x13': {'z1': 2.0, 'z2': 0.0, 'clase': 1}, 'x14': {'z1': 2.0, 'z2': 1.0, 'clase': 1}}
+    #muestras1={'x1': {'z1': 1.0, 'z2': 2.0, 'clase': -1}, 'x3': {'z1': 3.0, 'z2': 2.0, 'clase': -1}, 'x5': {'z1': 5.0, 'z2': 2.0, 'clase': -1}}
+    #muestras2={'x2': {'z1': 2.0, 'z2': 1.0, 'clase': 1}, 'x4': {'z1': 2.0, 'z2': 4.0, 'clase': 1}, 'x6': {'z1': 2.0, 'z2': 5.0, 'clase': 1}}
+    #muestras1={'x1': {'z1': 1.0, 'z2': 1.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 3.0, 'clase': -1}, 'x5': {'z1': 3.0, 'z2': 4.0, 'clase': -1}}
+    #muestras2={'x2': {'z1': 3.0, 'z2': 1.0, 'clase': 1}, 'x4': {'z1': 4.0, 'z2': 2.0, 'clase': 1}, 'x6': {'z1': 3.0, 'z2': 2.0, 'clase': 1}, 'x7': {'z1': 5.0, 'z2': 4.0, 'clase': 1}}
     muestrasActivas1=dict(muestras1)
     muestrasActivas2=dict(muestras2)
     #introducirDatos()
@@ -314,20 +358,30 @@ def main():
     while continuar:
         resSeleccion = Menu()
         if resSeleccion==1:
-            CondensadoHart(1,1,"L2")
+            opciones = PreguntasDeAlgoritmos(False)
+            CondensadoHart(opciones[0],opciones[1],opciones[2],opciones[3])
         elif resSeleccion==2:
-            Wilson(1,1,"L2")
-        elif resSeleccion==4:
+            opciones = PreguntasDeAlgoritmos(False)
+            Wilson(opciones[0],opciones[1],opciones[2],opciones[3])
+        elif resSeleccion==3:
             k = int(input("Numero k de vecino: "))
             muestraAClasificar= introducirMuestra()
             muestrasCombinadas = {**muestrasActivas1, **muestrasActivas2}
-            res=knn("",muestraAClasificar,muestrasCombinadas,1,"L2")
+            opciones = PreguntasDeAlgoritmos(False)
+            res=knn("",muestraAClasificar,muestrasCombinadas,opciones[0],opciones[1],opciones[2])
             print("La muestra pertenece a la clase: " + str(res[0]))
             print("Orden knn: ")
             print(res[1])
             muestraAClasificar["clase"]=res[0]
             plotear(muestraAClasificar)
 
+def PreguntasDeAlgoritmos(clasificar):
+    if not clasificar:
+        resOrden=int(input("1 Orden ascendente, 2 orden descendente: "))
+    kVecinos=int(input("numero de vecinos: "))
+    tipoDistancia=input("Tipo de distancia L0,L1,L2: ").upper()
+    desempate=input("m desempate a clase erronea: ").lower()
+    return resOrden,kVecinos,tipoDistancia,desempate
 
 if __name__ == "__main__":
     main()
