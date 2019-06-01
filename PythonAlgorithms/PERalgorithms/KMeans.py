@@ -2,6 +2,7 @@
 import sys
 import math
 import operator
+import pandas as pd
 import matplotlib.pyplot as plt
 
 muestras1 = {}
@@ -122,6 +123,37 @@ def CalculoL1(muestra1, muestra2):
         i+=1
     return resultado
 
+def CalculoMahalanobisDiagonal(muestra1,muestra2):
+    global muestrasActivas1,muestrasActivas2
+    muestrasCombinadas = {**muestrasActivas1, **muestrasActivas2}
+    df=pd.DataFrame.from_dict(muestrasCombinadas,orient='index')
+    varianza = df.var()
+    i=1
+    resultado=0
+    while i<len(muestra1):
+        valor1 = muestra1["z"+str(i)]
+        valor2 = muestra2["z"+str(i)]
+        peso= 1/varianza["z"+str(i)]
+        resultado+=peso*((valor2-valor1)**2)
+        i+=1
+    resultado=math.sqrt(resultado)
+    return resultado
+
+def CalculoMahalanobisDiagonalPorClase(muestra1,muestra2):
+    global muestrasActivas1,muestrasActivas2
+    df=pd.DataFrame.from_dict(muestrasCombinadas,orient='index')
+    varianza = df.var()
+    i=1
+    resultado=0
+    while i<len(muestra1):
+        valor1 = muestra1["z"+str(i)]
+        valor2 = muestra2["z"+str(i)]
+        peso= 1/varianza["z"+str(i)]
+        resultado+=peso*((valor2-valor1)**2)
+        i+=1
+    resultado=math.sqrt(resultado)
+    return resultado
+
 def CalculoL2(muestra1, muestra2):
     i=1
     resultado=0
@@ -172,11 +204,13 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias,tipoDeDesempate=Non
         if keyMuestraClas!=keyMuestra:
             resCalculo = -1;
             if tipoDistancias=='L1':
-                resCalculo=CalculoL1(muestraAClasificar,muestraActual)
+                resCalculo=CalculoL1(muestraActual,muestraAClasificar,)
             elif tipoDistancias=='L2':
-                resCalculo=CalculoL2(muestraAClasificar,muestraActual)
-            else:
-                resCalculo=CalculoL0(muestraAClasificar,muestraActual)
+                resCalculo=CalculoL2(muestraActual,muestraAClasificar,)
+            elif tipoDistancias=="L0":
+                resCalculo=CalculoL0(muestraActual,muestraAClasificar,)
+            elif tipoDistancias=="MD":
+                resCalculo=CalculoMahalanobisDiagonal(muestraActual,muestraAClasificar,)
             resClas[keyMuestra]=resCalculo
     resClasOrdenado = sorted(resClas.items(), key=operator.itemgetter(1))
     resClas1=0
@@ -198,7 +232,7 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias,tipoDeDesempate=Non
             resClasMenos1+=1
     resClaseFinal =1
     continuar=True
-    if tipoDeDesempate!=None and tipoDeDesempate=='m':
+    if tipoDeDesempate!=None and (tipoDeDesempate=='m' or tipoDeDesempate=='c'):
         i=0
         claseReal=muestraClas["clase"]
         while i< len(resClasOrdenado) and continuar:
@@ -207,7 +241,10 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias,tipoDeDesempate=Non
             claseKey=muestras[KnnResKey]["clase"]
             if distanciaActual>minDVecino:
                 continuar=False
-            elif claseKey!=claseReal:
+            elif claseKey!=claseReal and tipoDeDesempate=='m':
+                resClaseFinal =claseKey
+                continuar=False
+            elif claseKey==claseReal and tipoDeDesempate=='c':
                 resClaseFinal =claseKey
                 continuar=False
             i+=1
@@ -379,8 +416,8 @@ def PreguntasDeAlgoritmos(clasificar):
     if not clasificar:
         resOrden=int(input("1 Orden ascendente, 2 orden descendente: "))
     kVecinos=int(input("numero de vecinos: "))
-    tipoDistancia=input("Tipo de distancia L0,L1,L2: ").upper()
-    desempate=input("m desempate a clase erronea: ").lower()
+    tipoDistancia=input("Tipo de distancia L0,L1,L2,MD: ").upper()
+    desempate=input("m desempate a clase erronea c a clase correcta, cualquier otro simbolo no se vigila: ").lower()
     return resOrden,kVecinos,tipoDistancia,desempate
 
 if __name__ == "__main__":
