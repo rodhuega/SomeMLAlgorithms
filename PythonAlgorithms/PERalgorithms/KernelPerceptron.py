@@ -53,7 +53,9 @@ def kernelPerceptron():
             else:
                 valGx=0
             print("Resultado de clasificar "+ keyMuestra+ ": " + str(valGx))
-            if valGx*clase<=0:
+            verSiDaError = valGx*clase
+            print("Resultado de Gx*c: " + str(verSiDaError))
+            if verSiDaError<=0:
                 alfas[i]+=1
                 if clasificador!="":
                     clasificador+="+"
@@ -66,20 +68,30 @@ def kernelPerceptron():
             print("Clasificador: "+clasificador)
             i+=1
         continuar = input("Continuar? y si: ")
-        if (muestrasBienClasificadas==len(alfas) or (continuar.lower!="y")):
+        if (muestrasBienClasificadas==len(alfas) or (continuar.lower()!="y")):
             continuar=False
 
 def main():
     #introducirDatos()
     global muestras,kernelMatrix,alfas
-    muestras={'x1': 1, 'x2': 1, 'x3': 1, 'x4': -1, 'x5': -1, 'x6': -1}
-    kernelMatrix=np.array([[ 1,  1,  1,  1,  1,  1],
- [ 1,  4,  1,  0,  4,  9],
- [ 1,  1,  4,  0,  4,  4],
- [ 1,  0,  0,  9,  1,  4],
- [ 1,  4,  4,  1,  9, 16],
- [ 1,  9,  4,  4, 16, 36]])
-    alfas=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+ #   muestras={'x1': 1, 'x2': 1, 'x3': 1, 'x4': -1, 'x5': -1, 'x6': -1}
+ #   kernelMatrix=np.array([[ 1,  1,  1,  1,  1,  1],
+ #[ 1,  4,  1,  0,  4,  9],
+ #[ 1,  1,  4,  0,  4,  4],
+ #[ 1,  0,  0,  9,  1,  4],
+ #[ 1,  4,  4,  1,  9, 16],
+ #[ 1,  9,  4,  4, 16, 36]])
+ #   alfas=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    muestras={'x1': 1, 'x2': 1, 'x3': -1, 'x4': 1, 'x5': -1}
+    kernelMatrix=np.array([[ 16,  9,  9,  8, 3],
+ [ 9,  6,  4,  3, 2],
+ [ 9,  4,  6,  9, 4],
+ [ 8,  3,  9,  16, 9],
+ [ 3,  2,  4,  9, 6]])
+    alfas=[0.0, 0.0, 0.0, 0.0, 0.0]
+    print("Datos introducidos: ")
+    print(kernelMatrix)
+    print("Inicio ejecucion:")
     kernelPerceptron()
 
 if __name__ == "__main__":
