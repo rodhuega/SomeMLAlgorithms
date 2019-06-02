@@ -83,6 +83,7 @@ def clasificadorMinimoepsilon(pesosIteracion):
         #if epsilonClasificador<minepsilon:
         #    minepsilon=epsilonClasificador
         #    minClasificador=keyClasificadores
+    print("Epsilons de los clasificadores: ")
     print(clasificadorConSuEpsilon)
     minClasificador=input("Selecciona un clasificador: ")
     minepsilon=clasificadorConSuEpsilon[minClasificador]
@@ -118,16 +119,17 @@ def AdaBoost():
     i=1
     clasificadorFinal=""
     while i<100:
+        print("Iteracion " +str(i)+"-----------")
         (clasificador,epsilon)=clasificadorMinimoepsilon(i)
         if epsilon>0.5:
             break
         dentroLn=(1-epsilon)/epsilon
         alfaActual = 1/2*math.log(dentroLn)
         RecalcularPesos(alfaActual,i+1,clasificador)
-        print("Iteracion " +str(i)+"-----------")
+        print("Numero de dentro del Ln: "+ str(dentroLn))
         print("Alfa: "+  str(alfaActual))
         print("Clasificador elegido " + clasificador + " con epsilon " + str(epsilon))
-        print("Pesos")
+        print("Pesos Normalizados")
         print(pesos)
         #falta imprimir el clasificador y los epsilon
         clasificadorFinal+=str(alfaActual)+clasificador+"+"
@@ -137,11 +139,15 @@ def AdaBoost():
 
 def main():
     global muestras,clasificadores
-    introducirDatos()
+    #introducirDatos()
     #muestras={'x1': {'z1': 0.0, 'z2': 0.0, 'clase': 1}, 'x2': {'z1': 2.0, 'z2': 2.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 2.0, 'clase': 1}, 'x4': {'z1': 0.0, 'z2': 1.0, 'clase': -1}, 'x5': {'z1': -1.0, 'z2': 1.0, 'clase': 1}}
     #clasificadores={'g1': {1: 'z1>0', -1: 'z1<=0'}, 'g2': {1: 'z2>1', -1: 'z2<=1'}, 'g3': {1: 'z2-z1>0', -1: 'z2-z1<=0'}, 'g4': {1: 'z1+z2<=3', -1: 'z1+z2>3'}}
+    muestras={'x1': {'z1': 1.0, 'z2': 2.0, 'clase': 1}, 'x2': {'z1': -1.0, 'z2': -1.0, 'clase': 1}, 'x3': {'z1': 2.0, 'z2': 0.0, 'clase': -1}, 'x4': {'z1': -2.0, 'z2': 1.0, 'clase': -1}}
+    clasificadores={'g1': {1: 'z1>=0', -1: 'z1<0'}, 'g2': {1: 'z2>=0', -1: 'z2<0'}, 'g3': {1: 'z1+z2>2', -1: 'z1+z2<=2'}, 'g4': {1: 'z2-z1>=0', -1: 'z2-z1<0'}}
+    print("Datos a utilizar: ")
     print(muestras)
     print(clasificadores)
+    print("Inicio de la ejecucion")
     AdaBoost()
 
 if __name__ == "__main__":
