@@ -121,8 +121,8 @@ def AdaBoost():
     while i<100:
         print("Iteracion " +str(i)+"-----------")
         (clasificador,epsilon)=clasificadorMinimoepsilon(i)
-        if epsilon>0.5:
-            break
+        #if epsilon>0.5:
+        #    break
         dentroLn=(1-epsilon)/epsilon
         alfaActual = 1/2*math.log(dentroLn)
         RecalcularPesos(alfaActual,i+1,clasificador)
@@ -142,8 +142,10 @@ def main():
     #introducirDatos()
     #muestras={'x1': {'z1': 0.0, 'z2': 0.0, 'clase': 1}, 'x2': {'z1': 2.0, 'z2': 2.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 2.0, 'clase': 1}, 'x4': {'z1': 0.0, 'z2': 1.0, 'clase': -1}, 'x5': {'z1': -1.0, 'z2': 1.0, 'clase': 1}}
     #clasificadores={'g1': {1: 'z1>0', -1: 'z1<=0'}, 'g2': {1: 'z2>1', -1: 'z2<=1'}, 'g3': {1: 'z2-z1>0', -1: 'z2-z1<=0'}, 'g4': {1: 'z1+z2<=3', -1: 'z1+z2>3'}}
-    muestras={'x1': {'z1': 1.0, 'z2': 2.0, 'clase': 1}, 'x2': {'z1': -1.0, 'z2': -1.0, 'clase': 1}, 'x3': {'z1': 2.0, 'z2': 0.0, 'clase': -1}, 'x4': {'z1': -2.0, 'z2': 1.0, 'clase': -1}}
-    clasificadores={'g1': {1: 'z1>=0', -1: 'z1<0'}, 'g2': {1: 'z2>=0', -1: 'z2<0'}, 'g3': {1: 'z1+z2>2', -1: 'z1+z2<=2'}, 'g4': {1: 'z2-z1>=0', -1: 'z2-z1<0'}}
+    #muestras={'x1': {'z1': 1.0, 'z2': 2.0, 'clase': 1}, 'x2': {'z1': -1.0, 'z2': -1.0, 'clase': 1}, 'x3': {'z1': 2.0, 'z2': 0.0, 'clase': -1}, 'x4': {'z1': -2.0, 'z2': 1.0, 'clase': -1}}
+    #clasificadores={'g1': {1: 'z1>=0', -1: 'z1<0'}, 'g2': {1: 'z2>=0', -1: 'z2<0'}, 'g3': {1: 'z1+z2>2', -1: 'z1+z2<=2'}, 'g4': {1: 'z2-z1>=0', -1: 'z2-z1<0'}}
+    muestras={'x1': {'z1': 0.0, 'z2': 0.0, 'clase': -1}, 'x2': {'z1': 0.0, 'z2': 1.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 0.0, 'clase': -1}, 'x4': {'z1': 1.0, 'z2': 1.0, 'clase': 1}}
+    clasificadores={'g0': {1: 'z1>=0.5', -1: 'z1<0.5'}, 'g1': {-1: 'z1>=0.5', 1: 'z1<0.5'}, 'g2': {1: 'z2>=0.5', -1: 'z2<0.5'}, 'g3': {-1: 'z2>=0.5', 1: 'z2<0.5'}}
     print("Datos a utilizar: ")
     print(muestras)
     print(clasificadores)
