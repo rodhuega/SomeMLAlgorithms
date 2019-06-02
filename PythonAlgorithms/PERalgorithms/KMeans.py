@@ -139,9 +139,12 @@ def CalculoMahalanobisDiagonal(muestra1,muestra2):
     resultado=math.sqrt(resultado)
     return resultado
 
-def CalculoMahalanobisDiagonalPorClase(muestra1,muestra2):
+def CalculoMahalanobisDiagonalPorClase(muestra1,muestra2,clase):
     global muestrasActivas1,muestrasActivas2
-    df=pd.DataFrame.from_dict(muestrasCombinadas,orient='index')
+    if clase==-1:
+        df=pd.DataFrame.from_dict(muestrasActivas1,orient='index')
+    else:
+        df=pd.DataFrame.from_dict(muestrasActivas2,orient='index')
     varianza = df.var()
     i=1
     resultado=0
@@ -189,7 +192,7 @@ def CalculoPuntoMedio(muestra1, muestra2):
 
 def Menu():
     print("1 Condensado Hart")
-    print("2 Condensado Wilson")
+    print("2 Edicion Wilson")
     print("3 Clasificar")
     print("5 salir")
     seleccion=int(input("Seleccion: "))
@@ -210,7 +213,10 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias,tipoDeDesempate=Non
             elif tipoDistancias=="L0":
                 resCalculo=CalculoL0(muestraActual,muestraAClasificar,)
             elif tipoDistancias=="MD":
-                resCalculo=CalculoMahalanobisDiagonal(muestraActual,muestraAClasificar,)
+                resCalculo=CalculoMahalanobisDiagonal(muestraActual,muestraAClasificar)
+            elif tipoDistancias=="MDC":
+                claseDeLaMuestraAClasificar=muestraActual["clase"]
+                resCalculo=CalculoMahalanobisDiagonalPorClase(muestraActual,muestraAClasificar,claseDeLaMuestraAClasificar)
             resClas[keyMuestra]=resCalculo
     resClasOrdenado = sorted(resClas.items(), key=operator.itemgetter(1))
     resClas1=0
@@ -230,7 +236,7 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias,tipoDeDesempate=Non
             resClas1+=1
         else:
             resClasMenos1+=1
-    resClaseFinal =1
+    resClaseFinal =None
     continuar=True
     if tipoDeDesempate!=None and (tipoDeDesempate=='m' or tipoDeDesempate=='c'):
         i=0
@@ -248,10 +254,10 @@ def knn(keyMuestraClas,muestraClas,muestras,k,tipoDistancias,tipoDeDesempate=Non
                 resClaseFinal =claseKey
                 continuar=False
             i+=1
-    if resClasMenos1>resClas1 and continuar:
+    if resClasMenos1>resClas1 and resClaseFinal==None:
         resClaseFinal= -1
-    elif resClasMenos1==resClas1 and continuar:
-        resClaseFinal= 0
+    elif resClasMenos1<resClas1 and resClaseFinal==None:
+        resClaseFinal= 1
     return resClaseFinal,resClasOrdenado
 
 def CondensadoHart(orden,k,tipoDistancia,tipoClasificado):
@@ -276,12 +282,19 @@ def CondensadoHart(orden,k,tipoDistancia,tipoClasificado):
         claseReal=muestraAClas["clase"]
         nuevoDic = rehacerDicSalida(Store)
         resKnn=knn(keyMuestraClas,muestraAClas,nuevoDic,k,tipoDistancia,tipoClasificado)
+        print("Resultado de la clasificacion de " + keyMuestraClas+ ": "+ str(resKnn[1]))
         if resKnn[0]!=claseReal:
             Store.append(keyMuestraClas)
         else:
             Garbage.append(keyMuestraClas)
         i+=1
+    print("Fin de la primera fase: ")
+    print("Store")
+    print(Store)
+    print("Garbage")
+    print(Garbage)
     #Segunda fase
+    print("Empezamos segunda parte:")
     while(len(Garbage)!=0 and error and continuar):
         error = False
         i=0
@@ -297,9 +310,15 @@ def CondensadoHart(orden,k,tipoDistancia,tipoClasificado):
                 error=True
             else:
                 i+=1
+        print("Store")
+        print(Store)
+        print("Garbage")
+        print(Garbage)
         conString= input("Y para continuar")
         if conString.lower()!='y':
             continuar=False
+    if(not error):
+        print("Algoritmo finalizado con error 0")
     print("Store")
     print(Store)
     print("Garbage")
@@ -321,8 +340,8 @@ def Wilson(orden,k,tipoDistancia,tipoDeDesempate):
     while continuar and error:
         error=False
         i=0
-        while i<len(muestrasOrdenadas):
-            keyMuestraClas=muestrasOrdenadas[i]
+        while i<len(muestrasSalida):
+            keyMuestraClas=muestrasSalida[i]
             muestraAClas= muestrasCombinadas[keyMuestraClas]
             claseReal=muestraAClas["clase"]
             nuevoDic = rehacerDicSalida(muestrasSalida)
@@ -330,10 +349,15 @@ def Wilson(orden,k,tipoDistancia,tipoDeDesempate):
             if resKnn[0]!=claseReal:
                 error=True
                 muestrasSalida.remove(keyMuestraClas)
-            i+=1
+            else:
+                i+=1
+        print("Muestras vivas: ")
+        print(muestrasSalida)
         conString= input("Y para continuar")
         if conString.lower()!='y':
             continuar=False
+    if(not error):
+        print("Algoritmo finalizado con error 0")
     print(muestrasSalida)
     reAsignarMuestrasActivas(muestrasSalida)
     plotear()
@@ -374,19 +398,23 @@ def NuevoOrden(item):
     return int(num)
 
 def main():
+    #muestras1 siempre clase -1
+    #muestras2 siempre clase 1
     global muestras1,muestrasActivas1,muestras2,muestrasActivas2,vDimension
     vDimension=2
-    muestras1 = {'x1': {'z1': 0.0, 'z2': 0.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 2.0, 'clase': -1}
-                , 'x5': {'z1': 0.0, 'z2': 1.0, 'clase': -1}, 'x7': {'z1': 2.0, 'z2': 3.0, 'clase': -1}, 'x8': {'z1': 3.0, 'z2': 2.0, 'clase': -1}
-                , 'x10': {'z1': 4.0, 'z2': 0.0, 'clase': -1}, 'x12': {'z1': 4.0, 'z2': 1.0, 'clase': -1}}
-    muestras2 = {'x2': {'z1': 1.0, 'z2': 0.0, 'clase': 1},'x4': {'z1': 1.0, 'z2': 1.0, 'clase': 1}
-                , 'x6': {'z1': 2.0, 'z2': 2.0, 'clase': 1}
-                , 'x9': {'z1': 3.0, 'z2': 0.0, 'clase': 1}, 'x11': {'z1': 3.0, 'z2': 1.0, 'clase': 1}
-                , 'x13': {'z1': 2.0, 'z2': 0.0, 'clase': 1}, 'x14': {'z1': 2.0, 'z2': 1.0, 'clase': 1}}
+    #muestras1 = {'x1': {'z1': 0.0, 'z2': 0.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 2.0, 'clase': -1}
+    #            , 'x5': {'z1': 0.0, 'z2': 1.0, 'clase': -1}, 'x7': {'z1': 2.0, 'z2': 3.0, 'clase': -1}, 'x8': {'z1': 3.0, 'z2': 2.0, 'clase': -1}
+    #            , 'x10': {'z1': 4.0, 'z2': 0.0, 'clase': -1}, 'x12': {'z1': 4.0, 'z2': 1.0, 'clase': -1}}
+    #muestras2 = {'x2': {'z1': 1.0, 'z2': 0.0, 'clase': 1},'x4': {'z1': 1.0, 'z2': 1.0, 'clase': 1}
+    #            , 'x6': {'z1': 2.0, 'z2': 2.0, 'clase': 1}
+    #            , 'x9': {'z1': 3.0, 'z2': 0.0, 'clase': 1}, 'x11': {'z1': 3.0, 'z2': 1.0, 'clase': 1}
+    #            , 'x13': {'z1': 2.0, 'z2': 0.0, 'clase': 1}, 'x14': {'z1': 2.0, 'z2': 1.0, 'clase': 1}}
     #muestras1={'x1': {'z1': 1.0, 'z2': 2.0, 'clase': -1}, 'x3': {'z1': 3.0, 'z2': 2.0, 'clase': -1}, 'x5': {'z1': 5.0, 'z2': 2.0, 'clase': -1}}
     #muestras2={'x2': {'z1': 2.0, 'z2': 1.0, 'clase': 1}, 'x4': {'z1': 2.0, 'z2': 4.0, 'clase': 1}, 'x6': {'z1': 2.0, 'z2': 5.0, 'clase': 1}}
     #muestras1={'x1': {'z1': 1.0, 'z2': 1.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 3.0, 'clase': -1}, 'x5': {'z1': 3.0, 'z2': 4.0, 'clase': -1}}
     #muestras2={'x2': {'z1': 3.0, 'z2': 1.0, 'clase': 1}, 'x4': {'z1': 4.0, 'z2': 2.0, 'clase': 1}, 'x6': {'z1': 3.0, 'z2': 2.0, 'clase': 1}, 'x7': {'z1': 5.0, 'z2': 4.0, 'clase': 1}}
+    muestras1={'x1': {'z1': 2.0, 'z2': 2.0, 'clase': -1}, 'x3': {'z1': 7.0, 'z2': 1.0, 'clase': -1}, 'x5': {'z1': 4.0, 'z2': 2.0, 'clase': -1}, 'x7': {'z1': 6.0, 'z2': 1.0, 'clase': -1}, 'x9': {'z1': 3.0, 'z2': 4.0, 'clase': -1}}
+    muestras2={'x2': {'z1': 6.0, 'z2': 4.0, 'clase': 1}, 'x4': {'z1': 8.0, 'z2': 2.0, 'clase': 1}, 'x6': {'z1': 8.0, 'z2': 3.0, 'clase': 1}, 'x8': {'z1': 5.0, 'z2': 2.0, 'clase': 1}, 'x10': {'z1': 7.0, 'z2': 5.0, 'clase': 1}}
     muestrasActivas1=dict(muestras1)
     muestrasActivas2=dict(muestras2)
     #introducirDatos()
@@ -416,7 +444,7 @@ def PreguntasDeAlgoritmos(clasificar):
     if not clasificar:
         resOrden=int(input("1 Orden ascendente, 2 orden descendente: "))
     kVecinos=int(input("numero de vecinos: "))
-    tipoDistancia=input("Tipo de distancia L0,L1,L2,MD: ").upper()
+    tipoDistancia=input("Tipo de distancia L0,L1,L2,MD,MDC: ").upper()
     desempate=input("m desempate a clase erronea c a clase correcta, cualquier otro simbolo no se vigila: ").lower()
     return resOrden,kVecinos,tipoDistancia,desempate
 
