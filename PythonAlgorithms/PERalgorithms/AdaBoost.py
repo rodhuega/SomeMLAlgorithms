@@ -79,6 +79,7 @@ def clasificadorMinimoepsilon(pesosIteracion):
             if (resClas == valores["clase"]):
                 epsilonMuestra=0
             epsilonClasificador+=epsilonMuestra
+            print("Clasificador " + keyClasificadores+ " con la muestra " + keyMuestra+ " tiene epsilon: "+ str(epsilonMuestra))
         clasificadorConSuEpsilon[keyClasificadores]=epsilonClasificador
         #if epsilonClasificador<minepsilon:
         #    minepsilon=epsilonClasificador
@@ -144,8 +145,10 @@ def main():
     #clasificadores={'g1': {1: 'z1>0', -1: 'z1<=0'}, 'g2': {1: 'z2>1', -1: 'z2<=1'}, 'g3': {1: 'z2-z1>0', -1: 'z2-z1<=0'}, 'g4': {1: 'z1+z2<=3', -1: 'z1+z2>3'}}
     #muestras={'x1': {'z1': 1.0, 'z2': 2.0, 'clase': 1}, 'x2': {'z1': -1.0, 'z2': -1.0, 'clase': 1}, 'x3': {'z1': 2.0, 'z2': 0.0, 'clase': -1}, 'x4': {'z1': -2.0, 'z2': 1.0, 'clase': -1}}
     #clasificadores={'g1': {1: 'z1>=0', -1: 'z1<0'}, 'g2': {1: 'z2>=0', -1: 'z2<0'}, 'g3': {1: 'z1+z2>2', -1: 'z1+z2<=2'}, 'g4': {1: 'z2-z1>=0', -1: 'z2-z1<0'}}
-    muestras={'x1': {'z1': 0.0, 'z2': 0.0, 'clase': -1}, 'x2': {'z1': 0.0, 'z2': 1.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 0.0, 'clase': -1}, 'x4': {'z1': 1.0, 'z2': 1.0, 'clase': 1}}
-    clasificadores={'g0': {1: 'z1>=0.5', -1: 'z1<0.5'}, 'g1': {-1: 'z1>=0.5', 1: 'z1<0.5'}, 'g2': {1: 'z2>=0.5', -1: 'z2<0.5'}, 'g3': {-1: 'z2>=0.5', 1: 'z2<0.5'}}
+    #muestras={'x1': {'z1': 0.0, 'z2': 0.0, 'clase': -1}, 'x2': {'z1': 0.0, 'z2': 1.0, 'clase': -1}, 'x3': {'z1': 1.0, 'z2': 0.0, 'clase': -1}, 'x4': {'z1': 1.0, 'z2': 1.0, 'clase': 1}}
+    #clasificadores={'g0': {1: 'z1>=0.5', -1: 'z1<0.5'}, 'g1': {-1: 'z1>=0.5', 1: 'z1<0.5'}, 'g2': {1: 'z2>=0.5', -1: 'z2<0.5'}, 'g3': {-1: 'z2>=0.5', 1: 'z2<0.5'}}
+    muestras={'x1': {'z1': 1.0, 'z2': 1.0, 'clase': 1}, 'x2': {'z1': -1.0, 'z2': 1.0, 'clase': -1}, 'x3': {'z1': -1.0, 'z2': -1.0, 'clase': 1}, 'x4': {'z1': 1.0, 'z2': -1.0, 'clase': -1}}
+    clasificadores={'g1': {1: 'z1+z2>-0.5', -1: 'z1+z2<=-0.5'}, 'g2': {1: 'z1+z2>0.5', -1: 'z1+z2<=0.5'}}
     print("Datos a utilizar: ")
     print(muestras)
     print(clasificadores)
